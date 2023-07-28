@@ -5,65 +5,8 @@
 import G6 from '@antv/g6';
 import { onMounted } from 'vue';
 
-let graph2: any
-let nodes2: any[] = []
-const angle = (2 * Math.PI) / 10;
-function init2() {
-    // 创建图形实例
-    graph2 = new G6.Graph({
-        container: 'mountNode',
-        width: 400,
-        height: 400,
-    });
-
-    // 定义中心点的坐标
-    const centerX = 200;
-    const centerY = 200;
-
-    // 定义半径和角度
-    const radius = 100;
-    // 10个点，每个点相隔36度
-
-    // 添加节点数据
-    // const nodes2 = [];
-    for (let i = 0; i < 10; i++) {
-        const x = centerX + radius * Math.cos(i * angle);
-        const y = centerY + radius * Math.sin(i * angle);
-        nodes2.push({ id: `node${i}`, x, y, label: `node${i}` });
-    }
-
-    // 渲染图形
-    graph2.data({ nodes: nodes2 });
-    graph2.render();
-}
-let rotation = 0;
-let isPaused = false;
-// 定义动画函数
-function animateNodes2() {
-    nodes2.forEach((node: { id: any; }, i: number) => {
-        const targetX = 200 + 100 * Math.cos(i * ((2 * Math.PI) / 10) + (Date.now() % 10000) / 1000);
-        const targetY = 200 + 100 * Math.sin(i * ((2 * Math.PI) / 10) + (Date.now() % 10000) / 1000);
-        // graph.updateItem(node, { x: targetX, y: targetY });
-        const item = graph2.findById(node.id);
-        graph2.updateItem(item, { x: targetX, y: targetY });
-    });
-
-    rotation += angle;
-
-    if (rotation % (Math.PI * 2) === 0) {
-        // 旋转一周后暂停10秒
-        isPaused = true;
-        setTimeout(() => {
-            isPaused = false;
-        }, 10000);
-    }
-
-    if (!isPaused) {
-        requestAnimationFrame(animateNodes2);
-    }
-}
 onMounted(() => {
-    const container = document.getElementById('mountNode') as HTMLDivElement;
+    /* const container = document.getElementById('mountNode') as HTMLDivElement;
 
     const width = container.clientWidth;
     const height = container.clientHeight;
@@ -126,7 +69,57 @@ onMounted(() => {
         requestAnimationFrame(updateNodes);
     }
 
-    rotateNodes()
+    rotateNodes() */
+    const graph = new G6.Graph({
+        container: 'mountNode',
+        width: 500,
+        height: 500,
+        defaultNode: {
+            size: 20,
+            style: {
+                fill: 'blue'
+            }
+        }
+    });
+
+    const centerX = 250; // 中心点 x 坐标
+    const centerY = 250; // 中心点 y 坐标
+    const radius = 150;  // 半径
+    const angle = Math.PI / 180 * 36; // 每次转动的角度，36° 对应的弧度值
+    graph.data({
+        nodes: [
+            { id: '123', x: centerX, y: centerY }
+        ]
+    });
+    graph.render();
+    let angleSum = 0; // 记录总共旋转的角度
+
+    function animateNodes() {
+        let start = 0
+        graph.getNodes().forEach((node, i) => {
+            const _node = node.getModel()
+            // centerX + radius点半径 = z
+            //  z * cosA = x | cosA =  x / z
+            //  z * sinA = y | sinA =  y / z
+            const targetX = centerX + radius * Math.cos(angleSum + i * angle);
+            const targetY = centerY + radius * Math.sin(angleSum + i * angle);
+            // console.log(Math.sin(_node.y / radius)* (180 / Math.PI));
+            
+            
+            // console.log(angleSum + i * angle, targetX / radius, targetY / radius);
+            
+            graph.updateItem(node, { x: targetX, y: targetY });
+        });
+
+        angleSum += angle;
+
+        if (angleSum >= Math.PI * 2) {
+            // 停止旋转，清除定时器
+            clearInterval(timer);
+        }
+    }
+
+    const timer = setInterval(animateNodes, 2000); // 每 2 秒执行一次旋转动画
 })
 </script>
 <style lang='less'></style>
