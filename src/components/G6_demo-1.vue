@@ -23,10 +23,6 @@ G6.registerNode('image-node', {
         });
         return imgShape
     },
-    // afterDraw(cfg, group) {
-    //     console.log(group);
-
-    // }
 });
 const centerNode = {
     id: 'id-center',
@@ -38,7 +34,9 @@ const centerNode = {
     label: 'Node 0',
     shape: 'image-node', // 使用自定义的节点样式
 }
-const points = generateCircularLayout(centerNode.x, centerNode.y, 100, 10)
+const radius = 100
+const pointsSum = 10
+const points = generateCircularLayout(centerNode.x, centerNode.y, radius, pointsSum)
 
 const nodes = points.map((item, index) => {
     return Object.assign({
@@ -59,7 +57,6 @@ const edges = nodes.map(node => {
     }
 })
 let graph: any = null
-// console.log(points, nodes);
 function init() {
     const data = {
         // 点集
@@ -71,51 +68,48 @@ function init() {
         container: 'mountNode', // String | HTMLElement，必须，在 Step 1 中创建的容器 id 或容器本身
         width: 800, // Number，必须，图的宽度
         height: 500, // Number，必须，图的高度
-        // fitView: true,
-        // animate: true,
-        // defaultNode: {
-        //     shape: 'image-node',
-        //     size: 10,
-        // }
     });
-    console.log(nodes);
 
     graph.data(data); // 读取 Step 2 中的数据源到图上
     graph.render(); // 渲染图
 }
+const targetAngle = Math.PI * 2 / pointsSum; // 目标角度，对应36°
+let currentAngle = 0;
+let startTime: number = 0;
+const duration = 1000; // 动画持续时间，单位毫秒
 
 // 定义动画函数
-function animateNodes() {
-    const { x: x0, y: y0 } = nodes[1]
+function animateNodes(timestamp: any) {
+    if (!startTime) {
+        startTime = timestamp;
+    }
+    const progress = (timestamp - startTime) / duration;
+    const angle = currentAngle + targetAngle * progress;
     nodes.forEach((node, i) => {
         if (node.id !== 'id-center') {
-            let [targetX, targetY] = [0, 0]
-            if (i !== nodes.length - 1) {
-                const nextNode = nodes[i + 1]
-                targetX = nextNode.x
-                targetY = nextNode.y
-            } else {
-                targetX = x0
-                targetY = y0
-            }
-            nodes[i].x = targetX
-            nodes[i].y = targetY
-            // const item = graph.findById(node.id);
-            // graph.updateItem(item, { x: targetX, y: targetY });
-            // const targetX = centerNode.x + 100 * Math.cos(i * 10 + (Date.now() % 10000) / 1000);
-            // const targetY = centerNode.y + 100 * Math.sin(i * 10 + (Date.now() % 10000) / 1000);
-            // // 通过 ID 查询节点实例
-            // const item = graph.findById(node.id);
-            // graph.updateItem(item, { x: targetX, y: targetY });
+            i = i - 1
+            const iAngle = (Math.PI * 2 * i) / pointsSum
+            const targetX = centerNode.x + radius * Math.cos(iAngle + angle);
+            const targetY = centerNode.y + radius * Math.sin(iAngle + angle);
+            const item = graph.findById(node.id)
+            graph.updateItem(item, { x: targetX, y: targetY });
         }
-    });
+    })
+    if (progress < 1) {
+        requestAnimationFrame(animateNodes);
+    } else {
+        currentAngle = angle % (2 * Math.PI);
+        startTime = 0;
+        setTimeout(() => {
+            requestAnimationFrame(animateNodes);
+        }, duration)
+    }
 }
 onMounted(() => {
     init()
-    // setInterval(() => {
-    //     // 启动动画
-    //     animateNodes();
-    // }, 3000)
+    setTimeout(() => {
+        requestAnimationFrame(animateNodes);
+    }, duration)
 })
 </script>
 <style lang='less'></style>

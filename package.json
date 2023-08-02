@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@antv/g6": "^4.8.20",
+    "echarts": "^5.4.3",
     "vue": "^3.3.4"
   },
   "devDependencies": {
