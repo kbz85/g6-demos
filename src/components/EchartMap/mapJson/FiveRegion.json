@@ -1839,7 +1839,7 @@
           ]
         ]
       },
-      "properties": { "alias": "东部战区", "name": "东部战区" }
+      "properties": { "alias": "东部战区", "name": "EasternRegion", "value": "EasternRegion" }
     },
     {
       "type": "Feature",
@@ -5403,7 +5403,7 @@
           ]
         ]
       },
-      "properties": { "alias": "南部战区", "name": "南部战区" }
+      "properties": { "alias": "南部战区", "name": "SouthernRegion", "value": "SouthernRegion" }
     },
     {
       "type": "Feature",
@@ -8351,7 +8351,7 @@
           ]
         ]
       },
-      "properties": { "alias": "西部战区", "name": "西部战区" }
+      "properties": { "alias": "西部战区", "name": "WesternRegion", "value": "WesternRegion" }
     },
     {
       "type": "Feature",
@@ -11510,7 +11510,7 @@
           ]
         ]
       },
-      "properties": { "alias": "北部战区", "name": "北部战区" }
+      "properties": { "alias": "北部战区", "name": "NorthernRegion", "value": "NorthernRegion" }
     },
     {
       "type": "Feature",
@@ -13219,7 +13219,7 @@
           ]
         ]
       },
-      "properties": { "alias": "中部战区", "name": "中部战区" }
+      "properties": { "alias": "中部战区", "name": "CentralRegion", "value": "CentralRegion" }
     },
     {
       "type": "Feature",
