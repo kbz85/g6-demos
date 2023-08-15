@@ -1,10 +1,11 @@
 <template>
     <div class="w-[calc(100%-1rem*2)] h-[calc(100%-1rem*2)] p-4 m-4 bg-[#dfe7ef] overflow-hidden">
-        <div class="left-wrapper w-[calc(100%-400px-20px)] h-full float-left mr-5" :class="[{'-enter-x -enter-x-bounce': animationFlag}]">
+        <div class="left-wrapper w-[calc(100%-400px-20px)] h-full float-left mr-5"
+            :class="[{ '-enter-x -enter-x-bounce': animationFlag }]">
             <div class="w-full h-full" ref="containerRef"></div>
         </div>
         <div class="right-wrapper w-[400px] h-full round float-left shadow shadow-gray-600 bg-white"
-            :class="[{'enter-x enter-x-bounce': animationFlag}]"></div>
+            :class="[{ 'enter-x enter-x-bounce': animationFlag }]"></div>
     </div>
     <div class="echart-tooltip-wrapper" ref=tooltipWrapperRef>
         <div class="title">{{ tooltipWrapperData.title }}</div>
@@ -15,7 +16,7 @@
 </template>
 <script lang='ts' setup>
 import { ref, onMounted } from 'vue'
-import FiveRegion from './mapJson/FiveRegion.json'
+// import FiveRegion from './mapJson/FiveRegion.json'
 import China from './mapJson/China.json'
 import { fiveRegionsPro, generateMapModel, generatePoints, provinceKeys, LayoutOption } from './mapUtils/map'
 
@@ -29,7 +30,7 @@ const animationFlag = ref(true)
 // }, 1500)
 function initEchart() {
     // 注册地图
-    $echarts.registerMap('FiveRegion', FiveRegion);
+    // $echarts.registerMap('FiveRegion', FiveRegion);
     $echarts.registerMap('China', China);
     chart.value = $echarts.init(containerRef.value)
     const geoArrOption: [LayoutOption, LayoutOption, LayoutOption] = [
@@ -171,9 +172,8 @@ function initEchart() {
             }
             chart.value.setOption(option)
             animationFlag.value = true
-            
-        })
 
+        })
     })
 }
 const tooltipWrapperRef = ref()
@@ -199,9 +199,106 @@ function showPoint(event, data) {
         wrapperDom.style.display = 'none'
     }, 3000)
 }
+
+function getJson() {
+    const map = {}
+    // 在你的代码中使用 import.meta.glob 获取文件
+    const modules = import.meta.glob('./mapJson/provinces/*.json');
+    // 遍历获取到的文件并导入
+    for (const path in modules) {
+        if (Object.hasOwnProperty.call(modules, path)) {
+            modules[path]().then(module => {
+                // 在这里可以访问导入的模块
+                // console.log(module.default); // 导入的组件对象
+                const data = module.default
+                if (data.features) {
+                    data.features.forEach(item => {
+                        if (item.properties) {
+                            map[item.properties.adcode] = {
+                                fileName: item.properties.name,
+                                coord: generateRandomCoordinatesWithinCity(item.properties.center, 1, 5)
+                            }
+                            // getMaxMinLngLat(item.geometry.coordinates)
+                            // map[item.properties.name] = getMaxMinLngLat(item.geometry.coordinates)
+                            // item.properties.adcode
+
+                        }
+                    })
+                }
+            });
+        }
+    }
+    setTimeout(() => {
+        console.log(JSON.stringify(map));
+    }, 5000)
+}
+
+function getMaxMinLngLat(arr: Array<any>) {
+
+    // console.log(arr);
+    let _arr = []
+    if (arr.length > 1) {
+        // _arr = arr.reduce((acc, curr) => {
+        //     return acc.concat(curr);
+        // }, []);
+        // if (_arr.length > 2) {
+        //     _arr = _arr.reduce((acc, curr) => {
+        //         return acc.concat(curr);
+        //     }, []);
+        // }
+        // if (_arr.length <= 2) {
+        //     _arr = _arr.reduce((acc, curr) => {
+        //         return acc.concat(curr);
+        //     }, []);
+
+        //     console.log(123, _arr);
+        // }
+        _arr = arr.flat(2)
+        // console.log(123, _arr);
+    } else {
+        if (arr[0] > 1) _arr = arr
+        else _arr = arr[0][0]
+    }
+    let minLng = Infinity;
+    let maxLng = -Infinity;
+    let minLat = Infinity;
+    let maxLat = -Infinity;
+    _arr.forEach(coord => {
+        const lng = coord[0];
+        const lat = coord[1];
+
+        minLng = Math.min(minLng, lng);
+        maxLng = Math.max(maxLng, lng);
+        minLat = Math.min(minLat, lat);
+        maxLat = Math.max(maxLat, lat);
+    })
+    const newArr = [minLng, maxLng, minLat, maxLat]
+    const randomCoordinates = generateRandomCoordinatesWithinCity();
+    return randomCoordinates
+}
+function generateRandomCoordinate(center, deviation) {
+  const randomDeviation = deviation * Math.random();
+  return center + randomDeviation;
+}
+
+function generateRandomCoordinatesWithinCity(center, deviation, count) {
+  const coordinates = [];
+  
+  for (let i = 0; i < count; i++) {
+    const randomLng = generateRandomCoordinate(center[0], deviation);
+    const randomLat = generateRandomCoordinate(center[1], deviation);
+    coordinates.push([randomLng, randomLat]);
+  }
+  
+  return coordinates;
+}
+
+
+
 onMounted(() => {
-    console.log(containerRef.value)
-    initEchart()
+    getJson()
+    // console.log(containerRef.value)
+    // initEchart()
 })
 </script>
 <style>

@@ -104,10 +104,7 @@ onMounted(() => {
             const targetX = centerX + radius * Math.cos(angleSum + i * angle);
             const targetY = centerY + radius * Math.sin(angleSum + i * angle);
             // console.log(Math.sin(_node.y / radius)* (180 / Math.PI));
-            
-            
-            // console.log(angleSum + i * angle, targetX / radius, targetY / radius);
-            
+            // console.log(angleSum + i * angle, targetX / radius, targetY / radius);       
             graph.updateItem(node, { x: targetX, y: targetY });
         });
 
