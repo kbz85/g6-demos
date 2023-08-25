@@ -4,7 +4,7 @@
 <script lang='ts' setup>
 import G6 from '@antv/g6';
 import { onMounted } from 'vue';
-import { generateCircularLayout } from '../utils'
+import { generateCircularLayout } from './utils'
 // import nodeImg from '../assets/node.png?raw'
 // 定义自定义节点形状
 G6.registerNode('image-node', {

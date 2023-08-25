@@ -1,10 +1,10 @@
 <script setup lang="ts">
-// import G6_demo1 from './components/G6_demo-1.vue';
-import demo from './components/EchartMap/Demo01.vue';
+import G6_demo1 from './components/G6-demo/demo02.vue';
+// import demo from './components/EchartMap/Demo01.vue';
 </script>
 
 <template>
-  <demo></demo>
+  <G6_demo1></G6_demo1>
 </template>
 
 <style lang="css">

@@ -214,10 +214,14 @@ function getJson() {
                 if (data.features) {
                     data.features.forEach(item => {
                         if (item.properties) {
+                            // console.log(generateRandomPointsWithDistance(item.properties, 5, 0.5));
+
                             map[item.properties.adcode] = {
                                 fileName: item.properties.name,
-                                coord: generateRandomCoordinatesWithinCity(item.properties.center, 1, 5)
+                                coord: getMaxMinLngLat(item.geometry.coordinates, item.properties.center)
+                                //     // coord: generateRandomCoordinatesWithinCity(item.properties.center, 1, 5)
                             }
+                            // const randomPoints = generateRandomPointsWithDistance(cityBounds, numPoints, minDistance);
                             // getMaxMinLngLat(item.geometry.coordinates)
                             // map[item.properties.name] = getMaxMinLngLat(item.geometry.coordinates)
                             // item.properties.adcode
@@ -233,7 +237,7 @@ function getJson() {
     }, 5000)
 }
 
-function getMaxMinLngLat(arr: Array<any>) {
+function getMaxMinLngLat(arr: Array<any>, centerPoint) {
 
     // console.log(arr);
     let _arr = []
@@ -259,24 +263,53 @@ function getMaxMinLngLat(arr: Array<any>) {
         if (arr[0] > 1) _arr = arr
         else _arr = arr[0][0]
     }
-    let minLng = Infinity;
-    let maxLng = -Infinity;
-    let minLat = Infinity;
-    let maxLat = -Infinity;
-    _arr.forEach(coord => {
-        const lng = coord[0];
-        const lat = coord[1];
+    // console.log();
+    const jiange = parseInt(_arr.length / 5) - 1
+    const newArr = []
+    for(let i = 1; i <= 5; i++) {
+        const points = _arr[jiange * i]
+        if (points[0] > centerPoint[0]) points[0] -= 0.3
+        else points[0] += 0.3
+        if (points[1] > centerPoint[1]) points[1] -= 0.3
+        else points[1] += 0.3
+        newArr.push(points)
+    }
+    // console.log(newArr);
+    return newArr
+    // let minLng = Infinity;
+    // let maxLng = -Infinity;
+    // let minLat = Infinity;
+    // let maxLat = -Infinity;
+    // _arr.forEach(coord => {
+    //     const lng = coord[0];
+    //     const lat = coord[1];
 
-        minLng = Math.min(minLng, lng);
-        maxLng = Math.max(maxLng, lng);
-        minLat = Math.min(minLat, lat);
-        maxLat = Math.max(maxLat, lat);
-    })
-    const newArr = [minLng, maxLng, minLat, maxLat]
-    const randomCoordinates = generateRandomCoordinatesWithinCity();
-    return randomCoordinates
+    //     minLng = Math.min(minLng, lng);
+    //     maxLng = Math.max(maxLng, lng);
+    //     minLat = Math.min(minLat, lat);
+    //     maxLat = Math.max(maxLat, lat);
+    // })
+    // // const newArr = [minLng, maxLng, minLat, maxLat]
+    // const obj = {
+    //     minLongitude: minLng,
+    //     maxLongitude: maxLng,
+    //     minLatitude: minLat,
+    //     maxLatitude: maxLat
+    // }
+
+    // let randomCoordinates: { longitude: any; latitude: any; }[] = []
+    // if (obj.minLongitude != null && obj.maxLongitude != null && obj.minLatitude != null && obj.maxLatitude != null) {
+    //     randomCoordinates = generateRandomPoints(obj, 5, 0.02, 0.08);
+    // }
+    // console.log(JSON.stringify(obj));
+
+    // const randomCoordinates = [];
+    // const randomCoordinates = generateRandomPointsWithDistance(obj, 5, 0.5);
+    // console.log(123, randomCoordinates);
+
+    // return randomCoordinates
 }
-function generateRandomCoordinate(center, deviation) {
+/* function generateRandomCoordinate(center, deviation) {
   const randomDeviation = deviation * Math.random();
   return center + randomDeviation;
 }
@@ -293,10 +326,55 @@ function generateRandomCoordinatesWithinCity(center, deviation, count) {
   return coordinates;
 }
 
+ */
+/* function getEuclideanDistance(point1, point2) {
+    const deltaX = point1 - point2;
+    const deltaY = point1 - point2;
+    return Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+}
+function getRandomCoordinate(min, max) {
+  return Math.random() * (max - min) + min;
+}
 
+function generateRandomPoints(cityBounds, numPoints, minDistanceToEdge, minDistanceBetweenPoints) {
+  const randomPoints: any[][] = [];
+
+  while (randomPoints.length < numPoints) {
+    const randomLongitude = getRandomCoordinate(
+      cityBounds.minLongitude + minDistanceToEdge,
+      cityBounds.maxLongitude - minDistanceToEdge
+    );
+    const randomLatitude = getRandomCoordinate(
+      cityBounds.minLatitude + minDistanceToEdge,
+      cityBounds.maxLatitude - minDistanceToEdge
+    );
+
+    const newPoint = [randomLongitude, randomLatitude ];
+
+    const tooCloseToEdge =
+      randomLongitude - cityBounds.minLongitude < minDistanceToEdge ||
+      cityBounds.maxLongitude - randomLongitude < minDistanceToEdge ||
+      randomLatitude - cityBounds.minLatitude < minDistanceToEdge ||
+      cityBounds.maxLatitude - randomLatitude < minDistanceToEdge;
+
+    const tooCloseToOthers = randomPoints.some(existingPoint => {
+      return getEuclideanDistance(existingPoint, newPoint) < minDistanceBetweenPoints;
+    });
+
+    if (!tooCloseToEdge && !tooCloseToOthers) {
+      randomPoints.push(newPoint);
+    }
+  }
+
+  return randomPoints;
+}
+ */
 
 onMounted(() => {
     getJson()
+    // const pp = generateRandomPointsWithDistance({maxLatitude: 35.279889, maxLongitude: 112.76687,minLatitude: 34.892761,minLongitude: 112.035075}, 5, 0.05)
+    // console.log(pp);
+
     // console.log(containerRef.value)
     // initEchart()
 })
